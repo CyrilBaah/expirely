@@ -83,12 +83,8 @@ function loadAdminData() {
     // Load users
     users = JSON.parse(localStorage.getItem('users')) || [];
     
-    // Load all URLs for all users
-    allUrls = [];
-    users.forEach(user => {
-        const userUrls = JSON.parse(localStorage.getItem(`savedUrls_${user.email}`)) || [];
-        allUrls = [...allUrls, ...userUrls];
-    });
+    // Load all URLs (admin can see all URLs)
+    allUrls = JSON.parse(localStorage.getItem('allUrls')) || [];
     
     // Generate mock user activity
     generateMockUserActivity();
@@ -107,44 +103,44 @@ function loadAdminData() {
 
 // Generate mock user activity
 function generateMockUserActivity() {
+    // Only generate mock activity if there's no real activity
+    if (localStorage.getItem('userActivity')) {
+        userActivity = JSON.parse(localStorage.getItem('userActivity'));
+        return;
+    }
+    
     userActivity = [];
     
-    // Get random users
-    const activityUsers = users.length > 0 ? users : [{ name: 'Demo User', email: 'demo@example.com' }];
-    
-    // Generate activities
-    const activities = [
-        'logged in',
-        'added a new URL',
-        'updated profile',
-        'checked URL expiry',
-        'deleted a URL',
-        'changed password'
-    ];
-    
-    // Generate random timestamps for today
-    const today = new Date();
-    
-    for (let i = 0; i < 10; i++) {
-        const user = activityUsers[Math.floor(Math.random() * activityUsers.length)];
-        const activity = activities[Math.floor(Math.random() * activities.length)];
-        const hours = Math.floor(Math.random() * 12);
-        const minutes = Math.floor(Math.random() * 60);
-        
-        const timestamp = new Date(today);
-        timestamp.setHours(today.getHours() - hours);
-        timestamp.setMinutes(today.getMinutes() - minutes);
-        
-        userActivity.push({
-            user: user.name,
-            email: user.email,
-            action: activity,
-            timestamp: timestamp.toISOString()
+    // Get real users if available
+    if (users.length > 0) {
+        // Generate minimal activity for real users
+        users.forEach(user => {
+            // Add login activity
+            userActivity.push({
+                user: user.name,
+                email: user.email,
+                action: 'logged in',
+                timestamp: new Date(new Date().getTime() - Math.random() * 24 * 60 * 60 * 1000).toISOString()
+            });
+            
+            // Add URL check activity if user has URLs
+            const userUrls = allUrls.filter(url => url.addedBy === user.email);
+            if (userUrls.length > 0) {
+                userActivity.push({
+                    user: user.name,
+                    email: user.email,
+                    action: 'checked URL expiry',
+                    timestamp: new Date(new Date().getTime() - Math.random() * 12 * 60 * 60 * 1000).toISOString()
+                });
+            }
         });
     }
     
     // Sort by timestamp (most recent first)
     userActivity.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Save to localStorage
+    localStorage.setItem('userActivity', JSON.stringify(userActivity));
 }
 
 // Update dashboard stats
@@ -264,7 +260,8 @@ function populateUsersTable() {
     usersTableBody.innerHTML = '';
     
     users.forEach((user, index) => {
-        const userUrls = JSON.parse(localStorage.getItem(`savedUrls_${user.email}`)) || [];
+        // Count URLs added by this user
+        const userUrls = allUrls.filter(url => url.addedBy === user.email);
         const registeredDate = new Date(user.registeredOn || new Date()).toLocaleDateString();
         
         const row = document.createElement('tr');
@@ -327,7 +324,8 @@ function viewUserDetails(userEmail) {
         return;
     }
     
-    const userUrls = JSON.parse(localStorage.getItem(`savedUrls_${user.email}`)) || [];
+    // Get only URLs added by this user
+    const userUrls = allUrls.filter(url => url.addedBy === userEmail);
     const registeredDate = new Date(user.registeredOn || new Date()).toLocaleDateString();
     
     userDetailsContent.innerHTML = `
@@ -495,8 +493,10 @@ function deleteUser(userEmail) {
     // Save updated users to localStorage
     localStorage.setItem('users', JSON.stringify(users));
     
-    // Remove user's saved URLs
-    localStorage.removeItem(`savedUrls_${userEmail}`);
+    // Remove user's URLs from allUrls
+    let allUrls = JSON.parse(localStorage.getItem('allUrls')) || [];
+    allUrls = allUrls.filter(url => url.addedBy !== userEmail);
+    localStorage.setItem('allUrls', JSON.stringify(allUrls));
     
     // Update dashboard
     loadAdminData();

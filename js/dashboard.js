@@ -78,8 +78,9 @@ function checkAuthStatus() {
 
 // Load user data
 function loadUserData() {
-    // Load saved URLs
-    savedUrls = JSON.parse(localStorage.getItem(`savedUrls_${currentUser.email}`)) || [];
+    // Load saved URLs - only those added by the current user
+    const allUrls = JSON.parse(localStorage.getItem('allUrls')) || [];
+    savedUrls = allUrls.filter(url => url.addedBy === currentUser.email);
     
     // Update dashboard stats
     updateDashboardStats();
@@ -585,19 +586,30 @@ function generateMockUrlData(url) {
 
 // Save URL
 function saveUrl(urlData) {
+    // Ensure the URL is marked as added by this user
+    urlData.addedBy = currentUser.email;
+    
+    // Get all URLs from localStorage
+    let allUrls = JSON.parse(localStorage.getItem('allUrls')) || [];
+    
     // Check if URL already exists
-    const existingUrlIndex = savedUrls.findIndex(url => url.url === urlData.url);
+    const existingUrlIndex = allUrls.findIndex(url => 
+        url.url === urlData.url && url.addedBy === currentUser.email
+    );
     
     if (existingUrlIndex !== -1) {
         // Update existing URL
-        savedUrls[existingUrlIndex] = urlData;
+        allUrls[existingUrlIndex] = urlData;
     } else {
         // Add new URL
-        savedUrls.push(urlData);
+        allUrls.push(urlData);
     }
     
     // Save to localStorage
-    localStorage.setItem(`savedUrls_${currentUser.email}`, JSON.stringify(savedUrls));
+    localStorage.setItem('allUrls', JSON.stringify(allUrls));
+    
+    // Update local savedUrls array
+    savedUrls = allUrls.filter(url => url.addedBy === currentUser.email);
     
     // Update dashboard
     updateDashboardStats();
@@ -608,7 +620,13 @@ function saveUrl(urlData) {
 
 // Refresh URL data
 function refreshUrl(urlToRefresh) {
-    const urlIndex = savedUrls.findIndex(url => url.url === urlToRefresh);
+    // Get all URLs
+    let allUrls = JSON.parse(localStorage.getItem('allUrls')) || [];
+    
+    // Find the URL to refresh
+    const urlIndex = allUrls.findIndex(url => 
+        url.url === urlToRefresh && url.addedBy === currentUser.email
+    );
     
     if (urlIndex === -1) {
         alert('URL not found');
@@ -617,12 +635,16 @@ function refreshUrl(urlToRefresh) {
     
     // Generate new mock data
     const newData = generateMockUrlData(urlToRefresh);
+    newData.addedBy = currentUser.email; // Ensure ownership is preserved
     
     // Update URL
-    savedUrls[urlIndex] = newData;
+    allUrls[urlIndex] = newData;
     
     // Save to localStorage
-    localStorage.setItem(`savedUrls_${currentUser.email}`, JSON.stringify(savedUrls));
+    localStorage.setItem('allUrls', JSON.stringify(allUrls));
+    
+    // Update local savedUrls array
+    savedUrls = allUrls.filter(url => url.addedBy === currentUser.email);
     
     // Update dashboard
     updateDashboardStats();
@@ -637,11 +659,19 @@ function deleteUrl(urlToDelete) {
         return;
     }
     
-    // Filter out the URL to delete
-    savedUrls = savedUrls.filter(url => url.url !== urlToDelete);
+    // Get all URLs
+    let allUrls = JSON.parse(localStorage.getItem('allUrls')) || [];
+    
+    // Filter out the URL to delete (only for this user)
+    allUrls = allUrls.filter(url => 
+        !(url.url === urlToDelete && url.addedBy === currentUser.email)
+    );
     
     // Save to localStorage
-    localStorage.setItem(`savedUrls_${currentUser.email}`, JSON.stringify(savedUrls));
+    localStorage.setItem('allUrls', JSON.stringify(allUrls));
+    
+    // Update local savedUrls array
+    savedUrls = allUrls.filter(url => url.addedBy === currentUser.email);
     
     // Update dashboard
     updateDashboardStats();
@@ -655,13 +685,26 @@ function refreshData() {
     // Show loading state
     refreshBtn.classList.add('spinning');
     
+    // Get all URLs
+    let allUrls = JSON.parse(localStorage.getItem('allUrls')) || [];
+    
     // Simulate API call with setTimeout
     setTimeout(() => {
-        // Update all URLs with new data
-        savedUrls = savedUrls.map(url => generateMockUrlData(url.url));
+        // Update only this user's URLs with new data
+        allUrls = allUrls.map(url => {
+            if (url.addedBy === currentUser.email) {
+                const refreshedData = generateMockUrlData(url.url);
+                refreshedData.addedBy = currentUser.email; // Preserve ownership
+                return refreshedData;
+            }
+            return url;
+        });
         
         // Save to localStorage
-        localStorage.setItem(`savedUrls_${currentUser.email}`, JSON.stringify(savedUrls));
+        localStorage.setItem('allUrls', JSON.stringify(allUrls));
+        
+        // Update local savedUrls array
+        savedUrls = allUrls.filter(url => url.addedBy === currentUser.email);
         
         // Update dashboard
         updateDashboardStats();

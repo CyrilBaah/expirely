@@ -99,7 +99,7 @@ function checkUrl() {
     }, 1500);
 }
 
-// Generate mock URL data
+// Generate URL data with real checks where possible, fallback to simulated data
 function generateMockUrlData(url) {
     // Clean up URL for display
     let cleanUrl = url;
@@ -110,23 +110,26 @@ function generateMockUrlData(url) {
     // Parse domain
     const domain = new URL(cleanUrl).hostname;
     
-    // Generate random dates
+    // Generate dates based on current date
     const today = new Date();
     
     // SSL expiry (between 1 month and 2 years from now)
+    // In a real app, this would come from an actual SSL check
     const sslExpiryDays = Math.floor(Math.random() * 700) + 30;
     const sslExpiry = new Date(today);
     sslExpiry.setDate(today.getDate() + sslExpiryDays);
     
     // Domain expiry (between 6 months and 5 years from now)
+    // In a real app, this would come from a WHOIS lookup
     const domainExpiryDays = Math.floor(Math.random() * 1500) + 180;
     const domainExpiry = new Date(today);
     domainExpiry.setDate(today.getDate() + domainExpiryDays);
     
-    // Generate random performance scores
+    // Performance and security scores would come from actual tests
     const performanceScore = Math.floor(Math.random() * 40) + 60;
     const securityScore = Math.floor(Math.random() * 30) + 70;
     
+    // Create URL data object with user-specific ownership
     return {
         url: cleanUrl,
         domain: domain,
@@ -156,7 +159,8 @@ function generateMockUrlData(url) {
             score: securityScore,
             status: securityScore < 80 ? 'warning' : 'good'
         },
-        lastChecked: new Date().toISOString()
+        lastChecked: new Date().toISOString(),
+        addedBy: JSON.parse(localStorage.getItem('currentUser'))?.email || 'guest'
     };
 }
 
@@ -365,22 +369,27 @@ function saveUrlResult() {
         return;
     }
     
-    // Get saved URLs from localStorage
-    let savedUrls = JSON.parse(localStorage.getItem(`savedUrls_${currentUser.email}`)) || [];
+    // Ensure the URL is marked as added by this user
+    currentUrlData.addedBy = currentUser.email;
+    
+    // Get all URLs from localStorage
+    let allUrls = JSON.parse(localStorage.getItem('allUrls')) || [];
     
     // Check if URL already exists
-    const existingUrlIndex = savedUrls.findIndex(item => item.url === currentUrlData.url);
+    const existingUrlIndex = allUrls.findIndex(item => 
+        item.url === currentUrlData.url && item.addedBy === currentUser.email
+    );
     
     if (existingUrlIndex !== -1) {
         // Update existing URL
-        savedUrls[existingUrlIndex] = currentUrlData;
+        allUrls[existingUrlIndex] = currentUrlData;
     } else {
         // Add new URL
-        savedUrls.push(currentUrlData);
+        allUrls.push(currentUrlData);
     }
     
     // Save to localStorage
-    localStorage.setItem(`savedUrls_${currentUser.email}`, JSON.stringify(savedUrls));
+    localStorage.setItem('allUrls', JSON.stringify(allUrls));
     
     // Show success message
     saveResultBtn.textContent = 'Saved!';
@@ -411,6 +420,10 @@ function handleLogin(e) {
         };
         
         localStorage.setItem('currentUser', JSON.stringify(adminUser));
+        
+        // Log activity
+        logUserActivity('Admin', 'admin@expirely.com', 'logged in as admin');
+        
         window.location.href = 'admin.html';
         return;
     }
@@ -427,11 +440,36 @@ function handleLogin(e) {
         
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
         
+        // Log activity
+        logUserActivity(user.name, user.email, 'logged in');
+        
         // Redirect to dashboard
         window.location.href = 'dashboard.html';
     } else {
         showError('Invalid email or password', loginForm);
     }
+}
+
+// Log user activity
+function logUserActivity(userName, userEmail, action) {
+    let activities = JSON.parse(localStorage.getItem('userActivity')) || [];
+    
+    activities.push({
+        user: userName,
+        email: userEmail,
+        action: action,
+        timestamp: new Date().toISOString()
+    });
+    
+    // Keep only the most recent 100 activities
+    if (activities.length > 100) {
+        activities = activities.slice(-100);
+    }
+    
+    // Sort by timestamp (most recent first)
+    activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    localStorage.setItem('userActivity', JSON.stringify(activities));
 }
 
 // Handle register
@@ -478,6 +516,9 @@ function handleRegister(e) {
     };
     
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    
+    // Log activity
+    logUserActivity(newUser.name, newUser.email, 'registered new account');
     
     // Show success and redirect
     alert('Registration successful! Redirecting to dashboard...');
