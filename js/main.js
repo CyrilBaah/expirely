@@ -107,61 +107,114 @@ function generateMockUrlData(url) {
         cleanUrl = 'https://' + url;
     }
     
-    // Parse domain
-    const domain = new URL(cleanUrl).hostname;
-    
-    // Generate dates based on current date
-    const today = new Date();
-    
-    // SSL expiry (between 1 month and 2 years from now)
-    // In a real app, this would come from an actual SSL check
-    const sslExpiryDays = Math.floor(Math.random() * 700) + 30;
-    const sslExpiry = new Date(today);
-    sslExpiry.setDate(today.getDate() + sslExpiryDays);
-    
-    // Domain expiry (between 6 months and 5 years from now)
-    // In a real app, this would come from a WHOIS lookup
-    const domainExpiryDays = Math.floor(Math.random() * 1500) + 180;
-    const domainExpiry = new Date(today);
-    domainExpiry.setDate(today.getDate() + domainExpiryDays);
-    
-    // Performance and security scores would come from actual tests
-    const performanceScore = Math.floor(Math.random() * 40) + 60;
-    const securityScore = Math.floor(Math.random() * 30) + 70;
-    
-    // Create URL data object with user-specific ownership
-    return {
-        url: cleanUrl,
-        domain: domain,
-        ssl: {
-            issuer: 'Let\'s Encrypt Authority X3',
-            validFrom: new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            validTo: sslExpiry.toISOString().split('T')[0],
-            daysRemaining: sslExpiryDays,
-            status: sslExpiryDays < 30 ? 'expiring-soon' : 'valid'
-        },
-        domain: {
-            registrar: 'GoDaddy.com, LLC',
-            registeredOn: new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            expiresOn: domainExpiry.toISOString().split('T')[0],
-            daysRemaining: domainExpiryDays,
-            status: domainExpiryDays < 60 ? 'expiring-soon' : 'valid'
-        },
-        performance: {
-            loadTime: (Math.random() * 2 + 0.5).toFixed(2) + 's',
-            score: performanceScore,
-            status: performanceScore < 70 ? 'warning' : 'good'
-        },
-        security: {
-            https: true,
-            hsts: Math.random() > 0.3,
-            contentSecurity: Math.random() > 0.5,
-            score: securityScore,
-            status: securityScore < 80 ? 'warning' : 'good'
-        },
-        lastChecked: new Date().toISOString(),
-        addedBy: JSON.parse(localStorage.getItem('currentUser'))?.email || 'guest'
-    };
+    try {
+        // Parse domain
+        const urlObj = new URL(cleanUrl);
+        const domain = urlObj.hostname;
+        
+        // Generate dates based on current date
+        const today = new Date();
+        
+        // SSL expiry (between 1 month and 2 years from now)
+        // In a real app, this would come from an actual SSL check
+        const sslExpiryDays = Math.floor(Math.random() * 700) + 30;
+        const sslExpiry = new Date(today);
+        sslExpiry.setDate(today.getDate() + sslExpiryDays);
+        
+        // Domain expiry (between 6 months and 5 years from now)
+        // In a real app, this would come from a WHOIS lookup
+        const domainExpiryDays = Math.floor(Math.random() * 1500) + 180;
+        const domainExpiry = new Date(today);
+        domainExpiry.setDate(today.getDate() + domainExpiryDays);
+        
+        // Performance and security scores would come from actual tests
+        const performanceScore = Math.floor(Math.random() * 40) + 60;
+        const securityScore = Math.floor(Math.random() * 30) + 70;
+        
+        // Create URL data object with user-specific ownership
+        return {
+            url: cleanUrl,
+            domain: domain,
+            displayName: domain,
+            ssl: {
+                issuer: 'Let\'s Encrypt Authority X3',
+                validFrom: new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                validTo: sslExpiry.toISOString().split('T')[0],
+                daysRemaining: sslExpiryDays,
+                status: sslExpiryDays < 30 ? 'expiring-soon' : 'valid'
+            },
+            domain: {
+                registrar: 'GoDaddy.com, LLC',
+                registeredOn: new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                expiresOn: domainExpiry.toISOString().split('T')[0],
+                daysRemaining: domainExpiryDays,
+                status: domainExpiryDays < 60 ? 'expiring-soon' : 'valid'
+            },
+            performance: {
+                loadTime: (Math.random() * 2 + 0.5).toFixed(2) + 's',
+                score: performanceScore,
+                status: performanceScore < 70 ? 'warning' : 'good'
+            },
+            security: {
+                https: true,
+                hsts: Math.random() > 0.3,
+                contentSecurity: Math.random() > 0.5,
+                score: securityScore,
+                status: securityScore < 80 ? 'warning' : 'good'
+            },
+            lastChecked: new Date().toISOString(),
+            addedBy: JSON.parse(localStorage.getItem('currentUser'))?.email || 'guest'
+        };
+    } catch (error) {
+        // If URL parsing fails, create a simpler object with the raw URL as display name
+        const displayName = url.replace(/^https?:\/\//, '').replace(/^www\./, '');
+        
+        const today = new Date();
+        const sslExpiryDays = Math.floor(Math.random() * 700) + 30;
+        const sslExpiry = new Date(today);
+        sslExpiry.setDate(today.getDate() + sslExpiryDays);
+        
+        const domainExpiryDays = Math.floor(Math.random() * 1500) + 180;
+        const domainExpiry = new Date(today);
+        domainExpiry.setDate(today.getDate() + domainExpiryDays);
+        
+        const performanceScore = Math.floor(Math.random() * 40) + 60;
+        const securityScore = Math.floor(Math.random() * 30) + 70;
+        
+        return {
+            url: cleanUrl,
+            domain: displayName,
+            displayName: displayName,
+            ssl: {
+                issuer: 'Let\'s Encrypt Authority X3',
+                validFrom: new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                validTo: sslExpiry.toISOString().split('T')[0],
+                daysRemaining: sslExpiryDays,
+                status: sslExpiryDays < 30 ? 'expiring-soon' : 'valid'
+            },
+            domain: {
+                registrar: 'GoDaddy.com, LLC',
+                registeredOn: new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                expiresOn: domainExpiry.toISOString().split('T')[0],
+                daysRemaining: domainExpiryDays,
+                status: domainExpiryDays < 60 ? 'expiring-soon' : 'valid'
+            },
+            performance: {
+                loadTime: (Math.random() * 2 + 0.5).toFixed(2) + 's',
+                score: performanceScore,
+                status: performanceScore < 70 ? 'warning' : 'good'
+            },
+            security: {
+                https: true,
+                hsts: Math.random() > 0.3,
+                contentSecurity: Math.random() > 0.5,
+                score: securityScore,
+                status: securityScore < 80 ? 'warning' : 'good'
+            },
+            lastChecked: new Date().toISOString(),
+            addedBy: JSON.parse(localStorage.getItem('currentUser'))?.email || 'guest'
+        };
+    }
 }
 
 // Display URL results

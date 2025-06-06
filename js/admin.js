@@ -360,7 +360,7 @@ function viewUserDetails(userEmail) {
                             <tbody>
                                 ${userUrls.map(url => `
                                     <tr>
-                                        <td>${url.domain}</td>
+                                        <td>${url.displayName || url.domain}</td>
                                         <td>${getStatusBadge(getUrlStatus(url))}</td>
                                         <td>${new Date(url.lastChecked).toLocaleString()}</td>
                                     </tr>

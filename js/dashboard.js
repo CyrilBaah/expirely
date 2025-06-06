@@ -57,6 +57,28 @@ function init() {
         }
     });
     
+    // Add function to log user activity
+    window.logUserActivity = function(userName, userEmail, action) {
+        let activities = JSON.parse(localStorage.getItem('userActivity')) || [];
+        
+        activities.push({
+            user: userName,
+            email: userEmail,
+            action: action,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Keep only the most recent 100 activities
+        if (activities.length > 100) {
+            activities = activities.slice(-100);
+        }
+        
+        // Sort by timestamp (most recent first)
+        activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        localStorage.setItem('userActivity', JSON.stringify(activities));
+    };
+    
     // Load user data
     loadUserData();
 }
@@ -143,7 +165,7 @@ function populateRecentChecks() {
         
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td><a href="${url.url}" target="_blank">${url.domain}</a></td>
+            <td><a href="${url.url}" target="_blank">${url.displayName || url.domain}</a></td>
             <td>${sslStatus}</td>
             <td>${domainStatus}</td>
             <td>${overallStatus}</td>
@@ -183,7 +205,7 @@ function populateSavedUrls() {
         
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td><a href="${url.url}" target="_blank">${url.domain}</a></td>
+            <td><a href="${url.url}" target="_blank">${url.displayName || url.domain}</a></td>
             <td>${sslStatus}</td>
             <td>${domainStatus}</td>
             <td>${overallStatus}</td>
@@ -362,7 +384,7 @@ function viewUrlDetails(urlToView) {
     
     urlDetailsContent.innerHTML = `
         <div class="url-details-header">
-            <h3><i class="fas fa-link"></i> ${urlData.url}</h3>
+            <h3><i class="fas fa-link"></i> ${urlData.displayName || urlData.domain}</h3>
             <span class="last-checked">Last checked: ${new Date(urlData.lastChecked).toLocaleString()}</span>
         </div>
         
@@ -491,13 +513,14 @@ function searchUrl() {
     const url = dashboardSearch.value.trim();
     
     if (!url) {
-        alert('Please enter a URL to check');
+        alert('Please enter a URL to add');
         return;
     }
     
     // Show loading state
     dashboardSearch.disabled = true;
     dashboardSearchBtn.disabled = true;
+    dashboardSearchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
     
     // Simulate API call with setTimeout
     setTimeout(() => {
@@ -512,13 +535,19 @@ function searchUrl() {
             dashboardSearch.value = '';
             dashboardSearch.disabled = false;
             dashboardSearchBtn.disabled = false;
+            dashboardSearchBtn.innerHTML = '<i class="fas fa-plus"></i> Add URL';
             
-            // Show URL details
-            viewUrlDetails(mockData.url);
+            // Show success message
+            alert(`URL ${url} has been added successfully!`);
+            
+            // Log activity
+            logUserActivity(currentUser.name, currentUser.email, 'added a new URL');
+            
         } catch (error) {
             alert('Error checking URL: ' + error.message);
             dashboardSearch.disabled = false;
             dashboardSearchBtn.disabled = false;
+            dashboardSearchBtn.innerHTML = '<i class="fas fa-plus"></i> Add URL';
         }
     }, 1500);
 }

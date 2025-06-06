@@ -29,12 +29,6 @@ Expirely is a web application that helps users track and monitor URL expiration 
 5. View detailed information about each URL
 6. Update your account settings
 
-### Admin Dashboard
-
-1. Login with admin credentials (email: admin@expirely.com, password: admin123)
-2. View system statistics including total users, URLs, and activity
-3. Manage users (view details, delete users)
-4. Monitor system health and alerts
 
 ## Technical Details
 
@@ -51,10 +45,6 @@ All data is stored in the browser's localStorage, making it a client-side only a
 2. Open `index.html` in your web browser
 3. No additional installation or setup required
 
-## Master Credentials
-
-- **Admin Email**: admin@expirely.com
-- **Admin Password**: admin123
 
 ## Notes
 

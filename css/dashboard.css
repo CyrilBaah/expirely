@@ -124,6 +124,11 @@
     background-color: var(--primary-color);
     color: white;
     border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 0 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
 }
 
 .header-actions {
