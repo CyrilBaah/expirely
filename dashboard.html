@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expirely - Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-hourglass-half"></i> Expirely</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active"><a href="#overview"><i class="fas fa-tachometer-alt"></i> Overview</a></li>
+                    <li><a href="#saved-urls"><i class="fas fa-bookmark"></i> Saved URLs</a></li>
+                    <li><a href="#notifications"><i class="fas fa-bell"></i> Notifications</a></li>
+                    <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-details">
+                    <p id="user-name">User Name</p>
+                    <p id="user-email">user@example.com</p>
+                </div>
+                <button id="logout-btn"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </aside>
+
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <div class="search-container">
+                    <input type="text" id="dashboard-search" placeholder="Enter a URL to check...">
+                    <button id="dashboard-search-btn"><i class="fas fa-plus"></i> Add URL</button>
+                </div>
+                <div class="header-actions">
+                    <button id="refresh-btn"><i class="fas fa-sync-alt"></i></button>
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">0</span>
+                    </div>
+                </div>
+            </header>
+
+            <section id="overview" class="dashboard-section active">
+                <h2>Dashboard Overview</h2>
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-link"></i></div>
+                        <div class="stat-info">
+                            <h3>Total URLs</h3>
+                            <p id="total-urls">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="stat-info">
+                            <h3>Expiring Soon</h3>
+                            <p id="expiring-soon">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon danger"><i class="fas fa-times-circle"></i></div>
+                        <div class="stat-info">
+                            <h3>Expired</h3>
+                            <p id="expired">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-info">
+                            <h3>Healthy</h3>
+                            <p id="healthy">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-checks">
+                    <h3>Recent Checks</h3>
+                    <div class="table-container">
+                        <table id="recent-checks-table">
+                            <thead>
+                                <tr>
+                                    <th>URL</th>
+                                    <th>SSL Expiry</th>
+                                    <th>Domain Expiry</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-checks-body">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="saved-urls" class="dashboard-section">
+                <h2>Saved URLs</h2>
+                <div class="table-container">
+                    <table id="saved-urls-table">
+                        <thead>
+                            <tr>
+                                <th>URL</th>
+                                <th>SSL Expiry</th>
+                                <th>Domain Expiry</th>
+                                <th>Status</th>
+                                <th>Last Checked</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="saved-urls-body">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="notifications" class="dashboard-section">
+                <h2>Notifications</h2>
+                <div class="notifications-list" id="notifications-list">
+                    <!-- Will be populated by JavaScript -->
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="settings" class="dashboard-section">
+                <h2>Settings</h2>
+                <div class="settings-container">
+                    <div class="settings-group">
+                        <h3>Account Settings</h3>
+                        <form id="account-settings-form">
+                            <div class="form-group">
+                                <label for="settings-name">Full Name</label>
+                                <input type="text" id="settings-name">
+                            </div>
+                            <div class="form-group">
+                                <label for="settings-email">Email</label>
+                                <input type="email" id="settings-email" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label for="settings-current-password">Current Password</label>
+                                <input type="password" id="settings-current-password">
+                            </div>
+                            <div class="form-group">
+                                <label for="settings-new-password">New Password</label>
+                                <input type="password" id="settings-new-password">
+                            </div>
+                            <div class="form-group">
+                                <label for="settings-confirm-password">Confirm New Password</label>
+                                <input type="password" id="settings-confirm-password">
+                            </div>
+                            <button type="submit">Save Changes</button>
+                        </form>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h3>Notification Settings</h3>
+                        <div class="toggle-setting">
+                            <span>Email Notifications</span>
+                            <label class="switch">
+                                <input type="checkbox" id="email-notifications">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-setting">
+                            <span>Expiry Alerts (30 days before)</span>
+                            <label class="switch">
+                                <input type="checkbox" id="expiry-alerts" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- URL Details Modal -->
+    <div id="url-details-modal" class="modal">
+        <div class="modal-content large">
+            <span class="close">&times;</span>
+            <h2>URL Details</h2>
+            <div id="url-details-content">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

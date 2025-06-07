@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expirely - Admin Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar admin-sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-hourglass-half"></i> Expirely</h1>
+                <span class="admin-badge">ADMIN</span>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active"><a href="#admin-overview"><i class="fas fa-tachometer-alt"></i> Overview</a></li>
+                    <li><a href="#users-management"><i class="fas fa-users"></i> Users</a></li>
+                    <li><a href="#system-stats"><i class="fas fa-chart-line"></i> Statistics</a></li>
+                    <li><a href="#admin-settings"><i class="fas fa-cog"></i> Settings</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <div class="user-avatar admin">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="user-details">
+                    <p id="admin-name">Admin</p>
+                    <p id="admin-email">admin@expirely.com</p>
+                </div>
+                <button id="admin-logout-btn"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </aside>
+
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <h1>Admin Dashboard</h1>
+                <div class="header-actions">
+                    <button id="admin-refresh-btn"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </header>
+
+            <section id="admin-overview" class="dashboard-section active">
+                <h2>System Overview</h2>
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <h3>Total Users</h3>
+                            <p id="total-users">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
+                        <div class="stat-info">
+                            <h3>New Users (24h)</h3>
+                            <p id="new-users">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-link"></i></div>
+                        <div class="stat-info">
+                            <h3>Total URLs</h3>
+                            <p id="admin-total-urls">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-search"></i></div>
+                        <div class="stat-info">
+                            <h3>Checks Today</h3>
+                            <p id="checks-today">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-cards">
+                    <div class="admin-card">
+                        <h3><i class="fas fa-user-clock"></i> Recent User Activity</h3>
+                        <div class="table-container">
+                            <table id="recent-activity-table">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Action</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-activity-body">
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-card">
+                        <h3><i class="fas fa-exclamation-circle"></i> System Alerts</h3>
+                        <div id="system-alerts">
+                            <!-- Will be populated by JavaScript -->
+                            <div class="empty-state">
+                                <i class="fas fa-check-circle"></i>
+                                <p>No system alerts</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="users-management" class="dashboard-section">
+                <h2>Users Management</h2>
+                <div class="admin-actions">
+                    <div class="search-container">
+                        <input type="text" id="user-search" placeholder="Search users...">
+                        <button id="user-search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Registered</th>
+                                <th>URLs</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="system-stats" class="dashboard-section">
+                <h2>System Statistics</h2>
+                <div class="stats-cards">
+                    <div class="stats-card">
+                        <h3>User Growth</h3>
+                        <div class="chart-container">
+                            <canvas id="user-growth-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <h3>URL Checks</h3>
+                        <div class="chart-container">
+                            <canvas id="url-checks-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-cards">
+                    <div class="stats-card">
+                        <h3>Top Domains</h3>
+                        <div class="table-container">
+                            <table id="top-domains-table">
+                                <thead>
+                                    <tr>
+                                        <th>Domain</th>
+                                        <th>Checks</th>
+                                        <th>Users</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-domains-body">
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <h3>System Health</h3>
+                        <div class="health-metrics">
+                            <div class="health-metric">
+                                <span>System Status</span>
+                                <span class="status-badge online">Online</span>
+                            </div>
+                            <div class="health-metric">
+                                <span>Database Status</span>
+                                <span class="status-badge online">Connected</span>
+                            </div>
+                            <div class="health-metric">
+                                <span>API Status</span>
+                                <span class="status-badge online">Operational</span>
+                            </div>
+                            <div class="health-metric">
+                                <span>Last Backup</span>
+                                <span>2025-06-05 12:00:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="admin-settings" class="dashboard-section">
+                <h2>Admin Settings</h2>
+                <div class="settings-container">
+                    <div class="settings-group">
+                        <h3>System Settings</h3>
+                        <div class="toggle-setting">
+                            <span>User Registration</span>
+                            <label class="switch">
+                                <input type="checkbox" id="user-registration" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-setting">
+                            <span>Maintenance Mode</span>
+                            <label class="switch">
+                                <input type="checkbox" id="maintenance-mode">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="max-urls-per-user">Max URLs per User</label>
+                            <input type="number" id="max-urls-per-user" value="50">
+                        </div>
+                        <button id="save-system-settings">Save Settings</button>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h3>Admin Account</h3>
+                        <form id="admin-settings-form">
+                            <div class="form-group">
+                                <label for="admin-settings-name">Admin Name</label>
+                                <input type="text" id="admin-settings-name" value="Admin">
+                            </div>
+                            <div class="form-group">
+                                <label for="admin-settings-email">Admin Email</label>
+                                <input type="email" id="admin-settings-email" value="admin@expirely.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="admin-current-password">Current Password</label>
+                                <input type="password" id="admin-current-password">
+                            </div>
+                            <div class="form-group">
+                                <label for="admin-new-password">New Password</label>
+                                <input type="password" id="admin-new-password">
+                            </div>
+                            <div class="form-group">
+                                <label for="admin-confirm-password">Confirm New Password</label>
+                                <input type="password" id="admin-confirm-password">
+                            </div>
+                            <button type="submit">Update Admin Account</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="user-details-modal" class="modal">
+        <div class="modal-content large">
+            <span class="close">&times;</span>
+            <h2>User Details</h2>
+            <div id="user-details-content">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
